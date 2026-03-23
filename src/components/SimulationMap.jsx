@@ -7,6 +7,9 @@ import { LOCATIONS, ACTIONS } from '../data/locations';
 import ArthaChacha from './ArthaChacha';
 import BoloEngine from './BoloEngine';
 import SchemeEligibilityReport from './SchemeEligibilityReport';
+import DecisionModal from './DecisionModal';
+import OutcomeOverlay from './OutcomeOverlay';
+import ArthaScoreDetails from './ArthaScoreDetails';
 
 const MAP_SIZE = 800;
 
@@ -95,6 +98,7 @@ export default function SimulationMap({ onOpenLedger, profile }) {
 
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
+  const isAutoPaused = !!(activeLocation || showIntervention || pendingDecision || activeTourStep > 0);
   const actualPause = isManualPaused || isAutoPaused;
 
   const handleAction = (action, locId) => {
