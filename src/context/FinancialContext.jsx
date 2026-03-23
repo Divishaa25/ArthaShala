@@ -9,48 +9,17 @@ export const FinancialProvider = ({ children }) => {
   const [bankDebt, setBankDebt] = useState(0);
   const [sahukarDebt, setSahukarDebt] = useState(5000);
   const [arthaScore, setArthaScore] = useState(50);
-  const [currentMonth, setCurrentMonth] = useState(1);
   const [language, setLanguage] = useState('hi');
   const [claimedSchemes, setClaimedSchemes] = useState([]);
-  const [totalInterestPaid, setTotalInterestPaid] = useState(0);
-  const [stingTriggered, setStingTriggered] = useState(false);
   const [isFirstVisit, setIsFirstVisit] = useState(true);
-
-  // ── EPIPHANY ENGINE: SILENT MISTAKE TRACKER ──
-  const [mistakeTracker, setMistakeTracker] = useState({
-    sahukarInterest: 0,
-    uninsuredCropLoss: 0,
-    medicalOutOfPocket: 0,
-    distressSellLoss: 0,
-    fertilizerWaste: 0,
-  });
 
   const BANK_INTEREST = 0.04;    // 4% Annual
   const SAHUKAR_INTEREST = 0.24; // 24% Annual
 
-  // Log a financial mistake silently into the tracker
-  const logMistake = useCallback((key, amount) => {
-    setMistakeTracker(prev => ({ ...prev, [key]: (prev[key] || 0) + amount }));
-  }, []);
+  // Log a financial mistake silently into the tracker (Stubbed for backward compatibility if needed)
+  const logMistake = useCallback(() => {}, []);
 
-  const advanceMonth = useCallback(() => {
-    const bankInterestMonthly = (bankDebt * BANK_INTEREST) / 12;
-    const sahukarInterestMonthly = (sahukarDebt * SAHUKAR_INTEREST) / 12;
-
-    // Silently log the Sahukar interest bleed as a mistake
-    if (sahukarDebt > 0) {
-      setStingTriggered(true);
-      setTimeout(() => setStingTriggered(false), 1200);
-      setTotalInterestPaid(prev => prev + sahukarInterestMonthly);
-      // Log Sahukar interest as a mistake silently
-      logMistake('sahukarInterest', Math.round(sahukarInterestMonthly));
-    }
-
-    setWalletBalance(prev => Math.round(prev - bankInterestMonthly - sahukarInterestMonthly));
-    setBankDebt(prev => Math.round(prev + bankInterestMonthly));
-    setSahukarDebt(prev => Math.round(prev + sahukarInterestMonthly));
-    setCurrentMonth(prev => prev + 1);
-  }, [bankDebt, sahukarDebt, logMistake]);
+  const advanceMonth = useCallback(() => {}, []);
 
   const registerTransaction = useCallback((amount, type, options = {}) => {
     setWalletBalance(prev => prev + amount);
@@ -87,16 +56,7 @@ export const FinancialProvider = ({ children }) => {
     setBankDebt(0);
     setSahukarDebt(5000);
     setArthaScore(50);
-    setCurrentMonth(1);
-    setTotalInterestPaid(0);
     setClaimedSchemes([]);
-    setMistakeTracker({
-      sahukarInterest: 0,
-      uninsuredCropLoss: 0,
-      medicalOutOfPocket: 0,
-      distressSellLoss: 0,
-      fertilizerWaste: 0,
-    });
   }, [farmerProfile]);
 
   const completeFirstVisit = useCallback(() => setIsFirstVisit(false), []);
@@ -107,13 +67,9 @@ export const FinancialProvider = ({ children }) => {
     bankDebt, setBankDebt,
     sahukarDebt, setSahukarDebt,
     arthaScore, setArthaScore,
-    currentMonth, setCurrentMonth,
     language, setLanguage,
-    totalInterestPaid,
     claimedSchemes,
-    stingTriggered,
     isFirstVisit,
-    mistakeTracker,
     logMistake,
     advanceMonth,
     registerTransaction,

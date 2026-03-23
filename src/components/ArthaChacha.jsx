@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import arthaChachaImg from '../assets/artha_chacha.png';
+
 
 const T = {
   en: {
@@ -39,14 +41,12 @@ export default function ArthaChacha({
   language = 'hi', 
   isFirstVisit, 
   onCompleteTour,
-  onStepChange,
-  activeLesson
+  onStepChange
 }) {
   const [tourStep, setTourStep] = useState(isFirstVisit ? 1 : 0);
   const [bubbleText, setBubbleText] = useState(null);
   const [showMessage, setShowMessage] = useState(false);
   const [avatarExpression, setAvatarExpression] = useState('happy');
-  const [introducedLessonId, setIntroducedLessonId] = useState(null);
 
   const t = T[language] || T.hi;
 
@@ -67,11 +67,6 @@ export default function ArthaChacha({
       setTourStep(nextStep);
       // Force immediate update to parent for synchronization
       if (onStepChange) onStepChange(nextStep);
-    } else if (tourStep === 10) {
-      // Intro Module step
-      setTourStep(0);
-      setIntroducedLessonId(activeLesson?.id);
-      if (onStepChange) onStepChange(0);
     } else {
       setTourStep(0);
       onCompleteTour();
@@ -79,16 +74,7 @@ export default function ArthaChacha({
     }
   };
 
-  // CAMPAIGN MODULE NARRATOR
-  useEffect(() => {
-    if (activeLesson && !isFirstVisit && introducedLessonId !== activeLesson.id) {
-       setTourStep(10); // 10 is the special code for Module Introduction
-       setBubbleText(`${t.moduleStart} ${activeLesson.title}. \n\n${activeLesson.quest.task}`);
-       setShowMessage(true);
-    } else if (!activeLesson) {
-       setIntroducedLessonId(null); // Reset when quitting
-    }
-  }, [activeLesson, isFirstVisit, introducedLessonId, t]);
+  // Simulation lessons logic removed
 
   // POST-TOUR REACTION ENGINE
   useEffect(() => {
@@ -133,7 +119,6 @@ export default function ArthaChacha({
      if (tourStep === 3) return "bottom-40 left-1/2 -translate-x-1/2 translate-y-0 scale-110";
      if (tourStep === 4) return "top-48 left-10 translate-x-0 translate-y-0 scale-100";
      if (tourStep === 5) return "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-110";
-     if (tourStep === 10) return "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-110 z-[3000]";
      return "bottom-6 right-6 translate-x-0 translate-y-0 scale-100";
   };
 
@@ -160,7 +145,7 @@ export default function ArthaChacha({
               onClick={handleNext}
               className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/30 transition-all"
             >
-              {tourStep === 5 ? t.finish : tourStep === 10 ? t.next : t.next} →
+              {tourStep === 5 ? t.finish : t.next} →
             </button>
           </div>
         )}
@@ -175,10 +160,9 @@ export default function ArthaChacha({
         )}
         <div className={`relative w-28 h-28 rounded-full overflow-hidden border-2 border-white bg-white shadow-2xl transition-transform duration-500 ${avatarExpression === 'worried' ? 'scale-90' : 'scale-100'}`}>
           <img 
-            src="/assets/artha_chacha.png" 
+            src={arthaChachaImg} 
             alt="Artha Chacha" 
             className="w-full h-full object-cover bg-slate-100"
-            onError={(e) => { e.target.style.opacity = '0.5'; e.target.style.backgroundColor = '#94a3b8'; }}
           />
         </div>
         {/* Subtle Glow Ring */}

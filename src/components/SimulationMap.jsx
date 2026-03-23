@@ -1,19 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+
+
 import { TRANSLATIONS } from '../data/translations';
 import { useFinancials } from '../context/FinancialContext.jsx';
 import { LOCATIONS, ACTIONS } from '../data/locations';
-import EventInterceptor from './EventInterceptor';
-import EpiphanyScreen from './EpiphanyScreen';
-import DecisionModal from './DecisionModal';
-import OutcomeOverlay from './OutcomeOverlay';
-import InterventionModal from './InterventionModal';
 import ArthaChacha from './ArthaChacha';
 import BoloEngine from './BoloEngine';
-import { useGameClock } from '../hooks/useGameClock';
-import TimeTracker from './TimeTracker';
 import SchemeEligibilityReport from './SchemeEligibilityReport';
-import OpportunityCostScreen from './OpportunityCostScreen';
-import ArthaScoreDetails from './ArthaScoreDetails';
 
 const MAP_SIZE = 800;
 
@@ -74,14 +67,10 @@ export default function SimulationMap({ onOpenLedger, profile }) {
     bankDebt, 
     sahukarDebt, 
     arthaScore, 
-    currentMonth, 
     language,
-    advanceMonth,
-    stingTriggered,
     registerTransaction,
     isFirstVisit,
     completeFirstVisit,
-    logMistake,
     resetGame
   } = useFinancials();
 
@@ -106,16 +95,9 @@ export default function SimulationMap({ onOpenLedger, profile }) {
 
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
-  const isAutoPaused = !!(activeLocation || showIntervention || pendingDecision || activeTourStep > 0 || currentMonth >= 12);
   const actualPause = isManualPaused || isAutoPaused;
 
-  const { monthProgress } = useGameClock(actualPause, advanceMonth);
-
   const handleAction = (action, locId) => {
-    // Silently track financial bleed into the mistake engine
-    if (action.name === 'buy_excess_urea') logMistake('fertilizerWaste', Math.abs(action.amount));
-    if (locId === 'moneylender' && action.type === 'loan') logMistake('sahukarInterest', Math.round(Math.abs(action.amount) * 0.24));
-
     if (action.type === 'scheme') {
       setShowSchemes(true);
       setActiveLocation(null);
@@ -211,7 +193,7 @@ export default function SimulationMap({ onOpenLedger, profile }) {
              
              <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 shadow-inner">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                <span className="text-slate-600 font-black text-[10px] uppercase tracking-[0.2em]">{language === 'en' ? 'Month' : 'महीना'} {currentMonth}</span>
+                <span className="text-slate-600 font-black text-[10px] uppercase tracking-[0.2em]">{language === 'en' ? 'LIVE' : 'लाइव'}</span>
              </div>
           </div>
 
@@ -252,15 +234,7 @@ export default function SimulationMap({ onOpenLedger, profile }) {
              </div>
           </div>
           
-          {/* Active Clock Tracker */}
-          <div className="mt-1">
-            <TimeTracker 
-              progress={monthProgress} 
-              isPaused={actualPause} 
-              togglePause={() => setIsManualPaused(!isManualPaused)}
-              language={language}
-            />
-          </div>
+          {/* Time Tracker Removed */}
         </div>
       </div>
 
@@ -276,7 +250,6 @@ export default function SimulationMap({ onOpenLedger, profile }) {
              style={{ width: MAP_SIZE, height: MAP_SIZE }} 
              draggable={false} 
              className="brightness-[1.03] contrast-[1.05] block" 
-             onError={(e) => { e.target.style.display = 'none'; console.error('Map failed to load'); }}
            />
            {activeTourStep === 4 && (
               <div className="absolute inset-0 bg-slate-900/65 z-[50] pointer-events-none transition-all duration-500" />
@@ -298,26 +271,6 @@ export default function SimulationMap({ onOpenLedger, profile }) {
           activeModal={activeLocation?.id || (showIntervention ? 'intervention' : null) || (activeTourStep > 0 && activeTourStep !== 3 ? 'tour' : null)}
         />
       </div>
-
-      <EventInterceptor language={language} />
-
-      {/* ── EPIPHANY ENGINE: MOUNT AT MONTH 12 ── */}
-      {currentMonth >= 12 && (
-        <OpportunityCostScreen
-          language={language}
-          onReset={resetGame}
-        />
-      )}
-
-      {stingTriggered && (
-        <div className="fixed inset-0 z-[2000] bg-red-600/30 animate-pulse pointer-events-none flex items-center justify-center">
-          <div className="bg-white px-10 py-6 rounded-full shadow-[0_30px_60px_-12px_rgba(220,38,38,0.5)] border-4 border-red-600 animate-bounce">
-            <p className="text-red-600 font-black text-2xl uppercase tracking-widest text-center italic">
-              {language === 'hi' ? "सावधानी! ब्याज का झटका" : "WARNING! INTEREST STING"}
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* ── ARTHA CHACHA GUIDE ── */}
       <ArthaChacha 
