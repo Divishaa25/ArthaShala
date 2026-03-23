@@ -1,98 +1,122 @@
 import React, { useState } from 'react';
 
-export default function BhavishyaSlider({ lesson, onComplete }) {
-  const [sliderVal, setSliderVal] = useState(100);
+export default function BhavishyaSlider({ lesson, choice, onComplete }) {
+  const [sliderValue, setSliderValue] = useState(100);
   const [hasInteracted, setHasInteracted] = useState(false);
 
-  if (!lesson) return null;
+  if (!lesson || !lesson.simulation) return null;
+
+  const sim = lesson.simulation;
+  const isGood = choice === 'good';
+  const consequence = isGood ? sim.choices.good : sim.choices.bad;
+  
+  const presentImg = sim.images.present;
+  const futureImg = isGood ? sim.images.lush_field : sim.images.seized_field;
 
   const handleSliderChange = (e) => {
-    setSliderVal(parseInt(e.target.value));
+    setSliderValue(parseInt(e.target.value));
     if (!hasInteracted) setHasInteracted(true);
   };
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black text-white flex flex-col items-center justify-center p-6 sm:p-12 animate-in fade-in duration-500">
+    <div className="fixed inset-0 z-[60] bg-black flex flex-col font-sans overflow-hidden">
       
-      {/* HUD Hint */}
-      <div className="mb-6 text-center">
-        <p className="text-blue-400 font-black uppercase tracking-[0.3em] text-[10px] mb-2 animate-pulse">
-          Vision Mode Active
-        </p>
-        <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400">
-          Slide to see the Future
-        </h3>
-      </div>
-
-      {/* Main Image Container (60vh) */}
-      <div className="relative w-full max-w-4xl h-[55vh] sm:h-[60vh] overflow-hidden rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,1)] border-4 border-gray-800/50 group">
-        
-        {/* BASE LAYER (Future/Ruined) */}
-        <div className="absolute inset-0 w-full h-full">
-           <img 
-              src={lesson.images.future} 
-              alt="Future Vision" 
-              className="w-full h-full object-cover grayscale-[0.5] brightness-75 transition-all duration-300 group-hover:brightness-90"
-           />
-           <div className="absolute inset-0 bg-black/20" />
-           <div className="absolute bottom-10 right-10 bg-red-600/80 backdrop-blur-md px-6 py-2 rounded-full border border-red-400/50">
-              <span className="text-sm font-black uppercase tracking-widest text-white">The Consequence</span>
-           </div>
-        </div>
-
-        {/* TOP LAYER (Present/Good) - Wiped by sliderVal */}
-        <div 
-           className="absolute inset-0 w-full h-full z-10 pointer-events-none transition-all duration-75"
-           style={{ clipPath: `polygon(0 0, ${sliderVal}% 0, ${sliderVal}% 100%, 0 100%)` }}
-        >
-           <img 
-              src={lesson.images.present} 
-              alt="Present Day" 
-              className="w-full h-full object-cover shadow-2xl"
-           />
-           <div className="absolute bottom-10 left-10 bg-green-600/80 backdrop-blur-md px-6 py-2 rounded-full border border-green-400/50">
-              <span className="text-sm font-black uppercase tracking-widest text-white">Your Decision</span>
-           </div>
-        </div>
-
-        {/* Vertical Divider Line (Visual Aid) */}
-        <div 
-          className="absolute inset-y-0 w-1 bg-white/50 backdrop-blur-md z-20 pointer-events-none transition-all duration-75 shadow-[0_0_20px_rgba(255,255,255,0.5)]"
-          style={{ left: `${sliderVal}%` }}
-        >
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full border-4 border-black" />
-        </div>
-
-        {/* CUSTOM RANGE INPUT (Overlayed) */}
-        <input 
-          type="range" 
-          min="0" 
-          max="100" 
-          value={sliderVal} 
-          onChange={handleSliderChange}
-          className="absolute inset-x-0 top-0 w-full h-full opacity-0 cursor-ew-resize z-30"
-        />
-      </div>
-
-      {/* Lesson Text (Large & Impactful) */}
-      <div className={`mt-8 max-w-2xl text-center transition-all duration-1000 delay-300 ${hasInteracted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-         <p className="text-2xl sm:text-3xl font-black text-rose-500 drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] leading-tight italic">
-           "{lesson.lessonText}"
-         </p>
-      </div>
-
-      {/* Action Button */}
-      <div className={`mt-10 transition-all duration-500 ${hasInteracted ? 'scale-100 opacity-100' : 'scale-75 opacity-0'}`}>
-         <button 
-           onClick={onComplete}
-           className="bg-green-600 hover:bg-green-700 text-white font-bold text-xl py-4 px-12 rounded-full mt-8 shadow-[0_20px_40px_-10px_rgba(22,163,74,0.5)] active:scale-95 transition-all flex items-center gap-3 border-t border-white/20"
+      {/* Immersive Background Images (Cross-fade) */}
+      <div className="absolute inset-0">
+         <img 
+           src={presentImg} 
+           className="w-full h-full object-cover transition-opacity duration-700"
+           style={{ opacity: sliderValue / 100 }}
+           alt="Present"
+         />
+         <div 
+           className="absolute inset-0"
+           style={{ opacity: 1 - (sliderValue / 100) }}
          >
-           अगला पाठ सीखें (Learn Next Lesson) <span className="text-2xl">➔</span>
-         </button>
+           <img 
+             src={futureImg} 
+             className="w-full h-full object-cover brightness-[0.7] contrast-[1.1]"
+             alt="Future Consequence"
+           />
+           {/* Visual Overlays for Bad Choice */}
+           {!isGood && sliderValue < 30 && (
+             <div className="absolute inset-0 flex items-center justify-center p-12">
+                <div className="border-[16px] border-red-600 p-8 transform -rotate-12 bg-white/10 backdrop-blur-md animate-in zoom-in-95 duration-500">
+                   <h1 className="text-4xl sm:text-6xl font-black text-red-600 tracking-tighter uppercase leading-tight text-center">साहूकार द्वारा ज़ब्त</h1>
+                   <p className="text-red-500 font-black text-lg sm:text-xl text-center mt-2">(SEIZED BY MONEYLENDER)</p>
+                </div>
+             </div>
+           )}
+           {/* Visual Overlays for Good Choice */}
+           {isGood && sliderValue < 30 && (
+             <div className="absolute inset-0 flex items-center justify-center p-12">
+                <div className="px-10 py-6 bg-green-500/80 backdrop-blur-md rounded-[3rem] border-4 border-white shadow-2xl animate-in zoom-in-95 duration-500">
+                   <h1 className="text-4xl font-black text-white italic tracking-tighter">सुखद भविष्य! ✨</h1>
+                </div>
+             </div>
+           )}
+         </div>
+         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/40 to-transparent" />
+      </div>
+
+      {/* Content Overlay */}
+      <div className="relative flex-1 flex flex-col items-center justify-end pb-12 sm:pb-24 px-8 text-center">
+        
+        <div className={`transition-all duration-1000 transform ${sliderValue < 30 ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
+          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 mb-6 ${isGood ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-red-500/20 border-red-500 text-red-400'}`}>
+            <span className="text-xl">{isGood ? '🌟' : '⚠️'}</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Future Consequence</span>
+          </div>
+
+          <h2 className="text-2xl sm:text-4xl font-black text-white italic tracking-tighter leading-tight drop-shadow-2xl max-w-xl mx-auto">
+            {consequence.lessonText}
+          </h2>
+
+          <div className="mt-6 flex items-center justify-center gap-4">
+             <div className={`flex flex-col items-center p-4 rounded-3xl border-2 backdrop-blur-md ${isGood ? 'bg-green-600/20 border-green-500 text-green-400' : 'bg-red-600/20 border-red-500 text-red-400'}`}>
+               <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Artha Score</span>
+               <span className="text-2xl font-black">{consequence.arthaChange > 0 ? '+' : ''}{consequence.arthaChange}</span>
+             </div>
+          </div>
+
+          <button 
+            onClick={onComplete}
+            className="bg-green-600 hover:bg-green-700 text-white font-bold text-xl py-4 px-12 rounded-full mt-10 shadow-[0_20px_40px_-10px_rgba(22,163,74,0.5)] active:scale-95 transition-all flex items-center gap-3 border-t border-white/20 mx-auto group"
+          >
+            अगला पाठ सीखें (Learn Next Lesson) <span className="group-hover:translate-x-2 transition-transform">➔</span>
+          </button>
+        </div>
+
+        {/* The Slider Control */}
+        <div className={`mt-16 w-full max-w-sm transition-opacity duration-500 ${sliderValue < 10 ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100'}`}>
+          <div className="flex justify-between items-end mb-4 px-2">
+            <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Present</span>
+            <span className="text-[10px] font-black text-white/80 uppercase tracking-widest animate-pulse italic">Drag left to see future ➔</span>
+          </div>
+          <div className="relative group">
+            <input 
+              type="range" 
+              min="0" 
+              max="100" 
+              value={sliderValue} 
+              onChange={handleSliderChange}
+              className="w-full h-16 bg-white/10 backdrop-blur-3xl rounded-full appearance-none cursor-pointer border border-white/20 px-2 outline-none transition-all group-hover:bg-white/20 active:scale-[0.98]"
+              style={{
+                WebkitAppearance: 'none',
+              }}
+            />
+            <div 
+              className="absolute left-2 top-2 bottom-2 w-12 bg-white rounded-full flex items-center justify-center pointer-events-none shadow-xl transition-all"
+              style={{ left: `calc(${sliderValue}% - ${sliderValue * 0.48}px)` }}
+            >
+              <div className="w-1 h-4 bg-slate-300 rounded-full mr-0.5" />
+              <div className="w-1 h-6 bg-slate-400 rounded-full mx-0.5" />
+              <div className="w-1 h-4 bg-slate-300 rounded-full ml-0.5" />
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>
   );
 }
- 
- 

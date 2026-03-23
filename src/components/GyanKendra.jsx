@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFinancials } from '../context/FinancialContext.jsx';
-import lessonsData from '../data/lessons.json';
+import learningModules from '../data/learningModules';
 
 export default function GyanKendra({ onSelectModule, onExploreVillage }) {
   const { language, completedModules, arthaScore } = useFinancials();
@@ -80,12 +80,11 @@ export default function GyanKendra({ onSelectModule, onExploreVillage }) {
         </button>
       </div>
 
-      {/* Modules Grid - Two columns for better accessibility */}
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-24 grid grid-cols-2 gap-4 auto-rows-max">
-        {lessonsData.map((module, idx) => {
+        {learningModules.map((module, idx) => {
           const isCompleted = completedModules.includes(module.id);
-          const isLocked = idx > 0 && !completedModules.includes(lessonsData[idx - 1].id);
-          const icon = moduleIcons[module.id] || '📖';
+          const isLocked = idx > 0 && !completedModules.includes(learningModules[idx - 1].id);
+          const icon = moduleIcons[module.id] || module.icon || '📖';
 
           return (
             <div 

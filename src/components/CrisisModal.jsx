@@ -14,7 +14,7 @@ export default function CrisisModal({ lesson, onChoice }) {
         </h2>
         
         <p className="text-slate-600 font-medium mb-8 leading-relaxed">
-          The situation is critical. Your decision will impact your future directly.
+          बुवाई का समय! फैसला लें - बैंक या साहूकार? (Sowing time! Choose Bank or Moneylender?)
         </p>
 
         {/* Choice Cards */}
@@ -26,11 +26,11 @@ export default function CrisisModal({ lesson, onChoice }) {
           >
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-green-500 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-green-500/40 group-hover:rotate-12 transition-transform">
-                ✓
+                🏥
               </div>
               <div className="flex-1">
-                <h3 className="text-green-900 font-black text-lg leading-tight uppercase">{lesson.goodChoice.text}</h3>
-                <p className="text-green-700/70 text-xs font-bold mt-1">Recommended for high Artha Score</p>
+                <h3 className="text-green-900 font-black text-lg leading-tight uppercase">{lesson.choices.good.text}</h3>
+                <p className="text-green-700/70 text-xs font-bold mt-1">सुरक्षित और सस्ता (Safe & Affordable)</p>
               </div>
             </div>
           </div>
@@ -42,11 +42,11 @@ export default function CrisisModal({ lesson, onChoice }) {
           >
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-red-500 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-red-500/40 group-hover:-rotate-12 transition-transform">
-                ⚠
+                🤑
               </div>
               <div className="flex-1">
-                <h3 className="text-red-900 font-black text-lg leading-tight uppercase">{lesson.badChoice.text}</h3>
-                <p className="text-red-700/70 text-xs font-bold mt-1">High immediate cost / risk</p>
+                <h3 className="text-red-900 font-black text-lg leading-tight uppercase">{lesson.choices.bad.text}</h3>
+                <p className="text-red-700/70 text-xs font-bold mt-1">जाल में फंस सकते हैं! (Potential Trap!)</p>
               </div>
             </div>
           </div>

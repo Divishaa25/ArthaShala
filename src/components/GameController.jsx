@@ -8,11 +8,11 @@ import ProfileSetup from './ProfileSetup';
 import GyanKendra from './GyanKendra';
 import LessonViewer from './LessonViewer';
 import BhavishyaSlider from './BhavishyaSlider';
-import lessonsData from '../data/lessons.json';
+import learningModules from '../data/learningModules';
 
 export default function GameController() {
-  const [onboardingScreen, setOnboardingScreen] = useState('language');
   const [selectedProfile, setSelectedProfile] = useState(null);
+  const [lastChoice, setLastChoice] = useState(null);
 
   const { 
     language, setLanguage, 
@@ -22,7 +22,7 @@ export default function GameController() {
     completeModule
   } = useFinancials();
 
-  const activeLesson = lessonsData.find(l => l.id === activeModuleId);
+  const activeLesson = learningModules.find(l => l.id === activeModuleId);
 
   const handleLanguageSelect = (lang) => {
     setLanguage(lang);
@@ -63,6 +63,7 @@ export default function GameController() {
               )}
             </>
           )}
+
           {/* 2. GYAN KENDRA (MODULE HUB) */}
           {currentView === 'GYAN_KENDRA' && (
             <GyanKendra 
@@ -91,7 +92,10 @@ export default function GameController() {
               onOpenLedger={() => {/* Possibly remove ledger or handle differently */}}
               profile={selectedProfile}
               activeModuleId={activeModuleId}
-              onChoiceMade={() => setCurrentView('CONSEQUENCE_SLIDER')}
+              onChoiceMade={(choice) => {
+                setLastChoice(choice);
+                setCurrentView('CONSEQUENCE_SLIDER');
+              }}
             />
           )}
 
@@ -99,6 +103,7 @@ export default function GameController() {
           {currentView === 'CONSEQUENCE_SLIDER' && (
             <BhavishyaSlider 
               lesson={activeLesson}
+              choice={lastChoice}
               onComplete={() => completeModule(activeModuleId)}
             />
           )}

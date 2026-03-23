@@ -8,7 +8,7 @@ import ArthaChacha from './ArthaChacha';
 import BoloEngine from './BoloEngine';
 import SchemeEligibilityReport from './SchemeEligibilityReport';
 import CrisisModal from './CrisisModal';
-import lessonsData from '../data/lessons.json';
+import learningModules from '../data/learningModules';
 import DecisionModal from './DecisionModal';
 import OutcomeOverlay from './OutcomeOverlay';
 import ArthaScoreDetails from './ArthaScoreDetails';
@@ -26,25 +26,26 @@ const CategoryColors = {
 };
 
 // ── SUB-COMPONENT: MAP MARKERS (Phase 8 Aesthetic) ──
-const MapMarkers = ({ activeLocation, setActiveLocation, language, activeTourStep }) => {
+const MapMarkers = ({ activeLocation, setActiveLocation, language, activeTourStep, highlights }) => {
   return (
     <>
       {Object.entries(LOCATIONS).map(([id, loc]) => {
         const isActive = activeLocation?.id === id;
         const color = CategoryColors[loc.category] || '#94a3b8';
         const isTarget = activeTourStep === 4 && id === 'panchayat';
+        const isHighlighted = highlights && highlights.includes(id);
         
         return (
           <button
             key={id}
-            className={`absolute flex flex-col items-center transform -translate-x-1/2 -translate-y-[90%] transition-all cursor-pointer ${isActive ? 'scale-125 z-[60]' : 'hover:scale-110 hover:z-[60]'} ${isTarget ? 'z-[2000]' : 'z-10'}`}
+            className={`absolute flex flex-col items-center transform -translate-x-1/2 -translate-y-[90%] transition-all cursor-pointer ${isActive ? 'scale-125 z-[60]' : 'hover:scale-110 hover:z-[60]'} ${isTarget || isHighlighted ? 'z-[2000]' : 'z-10'}`}
             style={{ left: `${loc.pos.x}%`, top: `${loc.pos.y}%` }}
             onClick={() => setActiveLocation({ id, ...loc })}
           >
-            {isTarget && (
-              <div className="absolute top-2 w-10 h-10 bg-blue-400 rounded-full animate-ping opacity-60 pointer-events-none" />
+            {(isTarget || isHighlighted) && (
+              <div className={`absolute top-2 w-14 h-14 ${isHighlighted ? 'bg-amber-400' : 'bg-blue-400'} rounded-full animate-ping opacity-60 pointer-events-none`} />
             )}
-            <div className="relative flex items-center justify-center">
+            <div className={`relative flex items-center justify-center ${isHighlighted ? 'drop-shadow-[0_0_15px_rgba(251,191,36,0.8)] scale-125' : ''}`}>
               <svg className="w-10 h-10 drop-shadow-md" viewBox="0 0 24 24" fill={color}>
                 <path d="M12 0C7.029 0 3 4.029 3 9c0 5.25 7 13 8.35 14.776a2.053 2.053 0 003.3 0C16 22.001 21 14.25 21 9c0-4.971-4.029-9-9-9z" />
               </svg>
@@ -93,10 +94,11 @@ export default function SimulationMap({ onOpenLedger, profile, activeModuleId, o
   useEffect(() => {
     // CAMPAIGN MODE: Trigger Crisis immediately on mount
     if (activeModuleId) {
-      const lesson = lessonsData.find(l => l.id === activeModuleId);
-      if (lesson) {
+      const module = learningModules.find(l => l.id === activeModuleId);
+      if (module) {
         setPendingDecision({
-          ...lesson,
+          ...module,
+          ...module.simulation,
           isCrisis: true
         });
       }
@@ -179,12 +181,12 @@ export default function SimulationMap({ onOpenLedger, profile, activeModuleId, o
     
     if (isCrisis) {
       // Handle Campaign Crisis Choice
-      const choice = cost === 'good' ? pendingDecision.goodChoice : pendingDecision.badChoice;
+      const choice = cost === 'good' ? pendingDecision.choices.good : pendingDecision.choices.bad;
       const scoreChange = choice.arthaChange;
-      registerTransaction(0, 'crisis_choice', { scoreChange });
-      setLastDecision({ type: 'crisis', id: activeModuleId });
+      registerTransaction(0, 'crisis_choice', { scoreChange, meta: { choiceType: cost } });
+      setLastDecision({ type: 'crisis', id: activeModuleId, choiceType: cost });
       setPendingDecision(null);
-      onChoiceMade();
+      onChoiceMade(cost); // Pass choice to parent for BhavishyaSlider
       return;
     }
 
@@ -289,6 +291,7 @@ export default function SimulationMap({ onOpenLedger, profile, activeModuleId, o
              setActiveLocation={setActiveLocation} 
              language={language}
              activeTourStep={activeTourStep}
+              highlights={pendingDecision?.isCrisis ? ['bank', 'moneylender'] : []} 
            />
          </div>
       </div>
