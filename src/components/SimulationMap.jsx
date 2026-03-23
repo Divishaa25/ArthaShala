@@ -266,7 +266,10 @@ export default function SimulationMap({ onOpenLedger, profile }) {
       </div>
 
       {/* ── VIBRANT MAP AREA ── */}
-      <div ref={mapScrollRef} className="flex-1 overflow-auto bg-[#F4EBD9] relative cursor-grab active:cursor-grabbing scroll-smooth">
+      <div ref={mapScrollRef} className={`flex-1 overflow-auto bg-[#F4EBD9] relative cursor-grab active:cursor-grabbing scroll-smooth ${activeTourStep === 4 ? 'z-[600]' : 'z-10'}`}>
+         {activeTourStep === 4 && (
+            <div className="fixed inset-0 bg-slate-900/65 backdrop-blur-md z-[10] pointer-events-none transition-all duration-500" />
+         )}
          <div style={{ position: 'relative', width: MAP_SIZE, height: MAP_SIZE, backgroundColor: '#F4EBD9' }} className="shadow-inner">
            <img 
              src={villageMap} 
@@ -276,6 +279,9 @@ export default function SimulationMap({ onOpenLedger, profile }) {
              className="brightness-[1.03] contrast-[1.05] block" 
              onError={(e) => { e.target.style.display = 'none'; console.error('Map failed to load'); }}
            />
+           {activeTourStep === 4 && (
+              <div className="absolute inset-0 bg-slate-900/65 z-[50] pointer-events-none transition-all duration-500" />
+           )}
            
            <MapMarkers 
              activeLocation={activeLocation} 

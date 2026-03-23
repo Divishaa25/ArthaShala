@@ -59,15 +59,19 @@ export const FinancialProvider = ({ children }) => {
     if (type === 'loan') {
       if (options.debtType === 'bank') setBankDebt(prev => prev + Math.abs(amount));
       else setSahukarDebt(prev => prev + Math.abs(amount));
-      
-      if (amount > 0) setArthaScore(prev => Math.max(0, prev - 10));
     }
     
     if (type === 'loan_repay') {
       const repayAmount = Math.abs(amount);
       if (options.debtType === 'bank') setBankDebt(prev => Math.max(0, prev - repayAmount));
       else setSahukarDebt(prev => Math.max(0, prev - repayAmount));
-      
+    }
+
+    if (options.scoreChange !== undefined) {
+      setArthaScore(prev => Math.min(100, Math.max(0, prev + options.scoreChange)));
+    } else if (type === 'loan' && amount > 0) {
+      setArthaScore(prev => Math.max(0, prev - 10));
+    } else if (type === 'loan_repay') {
       setArthaScore(prev => Math.min(100, prev + 15));
     }
   }, []);

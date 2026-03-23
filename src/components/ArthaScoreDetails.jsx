@@ -120,60 +120,60 @@ const ArthaScoreDetails = ({ currentScore, walletBalance, language, onClose }) =
             </div>
 
             {/* Emotional Status */}
-            <div className="pt-8">
-              <h2 className={`text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r ${zoneInfo.color} tracking-tight`}>
+            <div className="pt-4">
+              <h2 className={`text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r ${zoneInfo.color} tracking-tight leading-tight`}>
                 {zoneInfo.status}
               </h2>
             </div>
 
             {/* Consequence Box */}
-            <div className="w-full bg-white/10 border border-white/20 rounded-[2.5rem] p-8 mt-4 shadow-2xl">
-              <p className="text-xl text-white/90 font-medium leading-relaxed italic">
+            <div className="w-full bg-slate-800/80 border border-slate-700 rounded-3xl p-5 mt-2 shadow-inner">
+              <p className="text-base sm:text-lg text-slate-200 font-medium leading-relaxed italic">
                 {zoneInfo.consequence}
               </p>
             </div>
 
             {/* BREAKDOWN GRID */}
-            <div className="grid grid-cols-1 gap-4 w-full mt-8">
+            <div className="grid grid-cols-1 gap-4 w-full mt-4">
               
               {/* Good Habits Card */}
-              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[2.5rem] p-6 text-left">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-2xl">✅</span>
-                  <h3 className="text-green-400 font-black text-xl tracking-wide uppercase">
+              <div className="bg-slate-800/50 backdrop-blur-md border border-slate-700/50 rounded-3xl p-5 text-left">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xl">✅</span>
+                  <h3 className="text-green-400 font-black text-lg tracking-wide uppercase">
                     {labels.boost}
                   </h3>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3 text-white/80 text-sm font-bold">
-                    <span className="text-xl">🏦</span> {labels.bank}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center gap-2 text-slate-300 text-xs sm:text-sm font-bold bg-slate-800/50 p-2 rounded-xl">
+                    <span className="text-lg">🏦</span> {labels.bank}
                   </div>
-                  <div className="flex items-center gap-3 text-white/80 text-sm font-bold">
-                    <span className="text-xl">🛡️</span> {labels.crop}
+                  <div className="flex items-center gap-2 text-slate-300 text-xs sm:text-sm font-bold bg-slate-800/50 p-2 rounded-xl">
+                    <span className="text-lg">🛡️</span> {labels.crop}
                   </div>
-                  <div className="flex items-center gap-3 text-white/80 text-sm font-bold">
-                    <span className="text-xl">🩺</span> {labels.health}
+                  <div className="flex items-center gap-2 text-slate-300 text-xs sm:text-sm font-bold bg-slate-800/50 p-2 rounded-xl">
+                    <span className="text-lg">🩺</span> {labels.health}
                   </div>
                 </div>
               </div>
 
               {/* Bad Habits Card */}
-              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[2.5rem] p-6 text-left">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-2xl">❌</span>
-                  <h3 className="text-red-400 font-black text-xl tracking-wide uppercase">
+              <div className="bg-slate-800/50 backdrop-blur-md border border-slate-700/50 rounded-3xl p-5 text-left border-b-rose-900/30">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xl">❌</span>
+                  <h3 className="text-red-400 font-black text-lg tracking-wide uppercase">
                     {labels.lower}
                   </h3>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3 text-white/80 text-sm font-bold">
-                    <span className="text-xl">🧛</span> {labels.debt}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center gap-2 text-slate-300 text-xs sm:text-sm font-bold bg-slate-800/50 p-2 rounded-xl">
+                    <span className="text-lg">🧛</span> {labels.debt}
                   </div>
-                  <div className="flex items-center gap-3 text-white/80 text-sm font-bold">
-                    <span className="text-xl">📉</span> {labels.late}
+                  <div className="flex items-center gap-2 text-slate-300 text-xs sm:text-sm font-bold bg-slate-800/50 p-2 rounded-xl">
+                    <span className="text-lg">📉</span> {labels.late}
                   </div>
-                  <div className="flex items-center gap-3 text-white/80 text-sm font-bold">
-                    <span className="text-xl">🛑</span> {labels.otp}
+                  <div className="flex items-center gap-2 text-slate-300 text-xs sm:text-sm font-bold bg-slate-800/50 p-2 rounded-xl">
+                    <span className="text-lg">🛑</span> {labels.otp}
                   </div>
                 </div>
               </div>
