@@ -7,6 +7,8 @@ import { LOCATIONS, ACTIONS } from '../data/locations';
 import ArthaChacha from './ArthaChacha';
 import BoloEngine from './BoloEngine';
 import SchemeEligibilityReport from './SchemeEligibilityReport';
+import CrisisModal from './CrisisModal';
+import lessonsData from '../data/lessons.json';
 import DecisionModal from './DecisionModal';
 import OutcomeOverlay from './OutcomeOverlay';
 import ArthaScoreDetails from './ArthaScoreDetails';
@@ -64,7 +66,7 @@ const MapMarkers = ({ activeLocation, setActiveLocation, language, activeTourSte
   );
 };
 
-export default function SimulationMap({ onOpenLedger, profile }) {
+export default function SimulationMap({ onOpenLedger, profile, activeModuleId, onChoiceMade }) {
   const { 
     walletBalance, 
     bankDebt, 
@@ -87,6 +89,19 @@ export default function SimulationMap({ onOpenLedger, profile }) {
   const [showSchemes, setShowSchemes] = useState(false);
   const [showScoreDetails, setShowScoreDetails] = useState(false);
   const mapScrollRef = useRef(null);
+
+  useEffect(() => {
+    // CAMPAIGN MODE: Trigger Crisis immediately on mount
+    if (activeModuleId) {
+      const lesson = lessonsData.find(l => l.id === activeModuleId);
+      if (lesson) {
+        setPendingDecision({
+          ...lesson,
+          isCrisis: true
+        });
+      }
+    }
+  }, [activeModuleId]);
 
   useEffect(() => {
     // Auto-scroll to Panchayat during its tour step
@@ -141,12 +156,10 @@ export default function SimulationMap({ onOpenLedger, profile }) {
     setPendingDecision(null);
     
     if (scoreChange !== 0 || finalType === 'grant') {
-      setActiveOutcome({
-        type: scoreChange >= 0 ? 'success' : 'warning',
-        title: language === 'hi' ? (action.nameHi || action.name) : action.name,
-        scoreChange: scoreChange, // Fixed prop name to match OutcomeOverlay
-        message: scoreChange > 0 ? t.outcomeSuccess : t.outcomeRisk
-      });
+       // Transition to Consequence Slider after a brief delay for the feedback overlay
+       setTimeout(() => {
+         onChoiceMade();
+       }, 500);
     }
   };
 
@@ -162,7 +175,19 @@ export default function SimulationMap({ onOpenLedger, profile }) {
     }
     
     // Actually execute the loan
-    const { action, locId } = pendingDecision;
+    const { action, locId, isCrisis } = pendingDecision;
+    
+    if (isCrisis) {
+      // Handle Campaign Crisis Choice
+      const choice = cost === 'good' ? pendingDecision.goodChoice : pendingDecision.badChoice;
+      const scoreChange = choice.arthaChange;
+      registerTransaction(0, 'crisis_choice', { scoreChange });
+      setLastDecision({ type: 'crisis', id: activeModuleId });
+      setPendingDecision(null);
+      onChoiceMade();
+      return;
+    }
+
     handleAction({ ...action, amount: cost }, locId);
   };
 
@@ -352,11 +377,18 @@ export default function SimulationMap({ onOpenLedger, profile }) {
       )}
 
       {pendingDecision && (
-        <DecisionModal 
-          {...pendingDecision} 
-          onChoose={handleDecision} 
-          onClose={() => setPendingDecision(null)} 
-        />
+        pendingDecision.isCrisis ? (
+          <CrisisModal 
+            lesson={pendingDecision} 
+            onChoice={(type) => handleDecision(type)} 
+          />
+        ) : (
+          <DecisionModal 
+            {...pendingDecision} 
+            onChoose={handleDecision} 
+            onClose={() => setPendingDecision(null)} 
+          />
+        )
       )}
 
       {showSchemes && (

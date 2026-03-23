@@ -13,6 +13,11 @@ export const FinancialProvider = ({ children }) => {
   const [claimedSchemes, setClaimedSchemes] = useState([]);
   const [isFirstVisit, setIsFirstVisit] = useState(true);
 
+  // ── CAMPAIGN ROUTER STATE ──
+  const [currentView, setCurrentView] = useState('ONBOARDING');
+  const [activeModuleId, setActiveModuleId] = useState(null);
+  const [completedModules, setCompletedModules] = useState([]);
+
   const BANK_INTEREST = 0.04;    // 4% Annual
   const SAHUKAR_INTEREST = 0.24; // 24% Annual
 
@@ -61,6 +66,14 @@ export const FinancialProvider = ({ children }) => {
 
   const completeFirstVisit = useCallback(() => setIsFirstVisit(false), []);
 
+  const completeModule = useCallback((moduleId) => {
+    if (!completedModules.includes(moduleId)) {
+      setCompletedModules(prev => [...prev, moduleId]);
+    }
+    setCurrentView('GYAN_KENDRA');
+    setActiveModuleId(null);
+  }, [completedModules]);
+
   const value = {
     farmerProfile, setFarmerProfile,
     walletBalance, setWalletBalance,
@@ -70,6 +83,10 @@ export const FinancialProvider = ({ children }) => {
     language, setLanguage,
     claimedSchemes,
     isFirstVisit,
+    currentView, setCurrentView,
+    activeModuleId, setActiveModuleId,
+    completedModules,
+    completeModule,
     logMistake,
     advanceMonth,
     registerTransaction,

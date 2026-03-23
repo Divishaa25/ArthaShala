@@ -5,26 +5,38 @@ import SimulationMap from './SimulationMap';
 import LedgerView from './LedgerView';
 import { useFinancials } from '../context/FinancialContext.jsx';
 import ProfileSetup from './ProfileSetup';
+import GyanKendra from './GyanKendra';
+import LessonViewer from './LessonViewer';
+import BhavishyaSlider from './BhavishyaSlider';
+import lessonsData from '../data/lessons.json';
 
 export default function GameController() {
-  const [currentScreen, setCurrentScreen] = useState('language');
+  const [onboardingScreen, setOnboardingScreen] = useState('language');
   const [selectedProfile, setSelectedProfile] = useState(null);
 
-  const { language, setLanguage, setFarmerProfile } = useFinancials();
+  const { 
+    language, setLanguage, 
+    setFarmerProfile, 
+    currentView, setCurrentView,
+    activeModuleId, setActiveModuleId,
+    completeModule
+  } = useFinancials();
+
+  const activeLesson = lessonsData.find(l => l.id === activeModuleId);
 
   const handleLanguageSelect = (lang) => {
     setLanguage(lang);
-    setCurrentScreen('profile');
+    setOnboardingScreen('profile');
   };
 
   const handleProfileSelect = (profile) => {
     setSelectedProfile(profile);
-    setCurrentScreen('setup');
+    setOnboardingScreen('setup');
   };
 
   const handleProfileComplete = (setupData) => {
     setFarmerProfile({ profession: selectedProfile, ...setupData, name: 'Farmer' });
-    setCurrentScreen('simulation');
+    setCurrentView('GYAN_KENDRA');
   };
 
   return (
@@ -37,46 +49,58 @@ export default function GameController() {
 
         {/* ── SCREEN CONTENT ── */}
         <div className="h-full w-full relative overflow-hidden bg-white">
-          {/* SIMULATION */}
-          {currentScreen === 'simulation' && (
-            <div className="absolute inset-0 z-10">
-              <SimulationMap
-                onOpenLedger={() => setCurrentScreen('ledger')}
-                profile={selectedProfile}
-              />
-            </div>
+          {/* 1. ONBOARDING FLOW */}
+          {currentView === 'ONBOARDING' && (
+            <>
+              {onboardingScreen === 'language' && (
+                <LanguageSelector onSelect={handleLanguageSelect} />
+              )}
+              {onboardingScreen === 'profile' && (
+                <ProfileSelector language={language} onSelect={handleProfileSelect} />
+              )}
+              {onboardingScreen === 'setup' && (
+                <ProfileSetup language={language} onProfileComplete={handleProfileComplete} />
+              )}
+            </>
           )}
 
-          {/* LANGUAGE SELECTOR */}
-          {currentScreen === 'language' && (
-            <div className="absolute inset-0 z-[100]">
-              <LanguageSelector onSelect={handleLanguageSelect} />
-            </div>
+          {/* 2. GYAN KENDRA (MODULE HUB) */}
+          {currentView === 'GYAN_KENDRA' && (
+            <GyanKendra 
+              onSelectModule={(id) => {
+                setActiveModuleId(id);
+                setCurrentView('LESSON');
+              }} 
+            />
           )}
 
-          {/* PROFILE SELECTOR */}
-          {currentScreen === 'profile' && (
-            <div className="absolute inset-0 z-[100]">
-              <ProfileSelector language={language} onSelect={handleProfileSelect} />
-            </div>
+          {/* 3. LESSON VIEWER (THEORY) */}
+          {currentView === 'LESSON' && (
+            <LessonViewer 
+              lesson={activeLesson}
+              onStartDemo={() => setCurrentView('MAP_DEMO')}
+            />
           )}
 
-          {/* PROFILE SETUP */}
-          {currentScreen === 'setup' && (
-            <div className="absolute inset-0 z-[100]">
-              <ProfileSetup language={language} onProfileComplete={handleProfileComplete} />
-            </div>
+          {/* 4. MAP DEMO (THE PRACTICAL) */}
+          {currentView === 'MAP_DEMO' && (
+            <SimulationMap
+              onOpenLedger={() => {/* Possibly remove ledger or handle differently */}}
+              profile={selectedProfile}
+              activeModuleId={activeModuleId}
+              onChoiceMade={() => setCurrentView('CONSEQUENCE_SLIDER')}
+            />
           )}
 
-          {/* LEDGER */}
-          {currentScreen === 'ledger' && (
-            <div className="absolute inset-0 z-[200]">
-              <LedgerView
-                onBack={() => setCurrentScreen('simulation')}
-                language={language}
-              />
-            </div>
+          {/* 5. CONSEQUENCE SLIDER (THE RESULT) */}
+          {currentView === 'CONSEQUENCE_SLIDER' && (
+            <BhavishyaSlider 
+              lesson={activeLesson}
+              onComplete={() => completeModule(activeModuleId)}
+            />
           )}
+
+          {/* LEDGER (If needed, could be a floating modal or overlay) */}
         </div>
       </div>
     </div>

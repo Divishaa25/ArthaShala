@@ -85,9 +85,9 @@ export default function BhavishyaSlider({ lesson, onComplete }) {
       <div className={`mt-10 transition-all duration-500 ${hasInteracted ? 'scale-100 opacity-100' : 'scale-75 opacity-0'}`}>
          <button 
            onClick={onComplete}
-           className="px-10 py-5 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white rounded-full text-sm font-black uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(79,70,229,0.5)] active:scale-95 transition-all flex items-center gap-3 border-t border-white/20"
+           className="bg-green-600 hover:bg-green-700 text-white font-bold text-xl py-4 px-12 rounded-full mt-8 shadow-[0_20px_40px_-10px_rgba(22,163,74,0.5)] active:scale-95 transition-all flex items-center gap-3 border-t border-white/20"
          >
-           Continue the Journey <span className="text-xl">➔</span>
+           अगला पाठ सीखें (Learn Next Lesson) <span className="text-2xl">➔</span>
          </button>
       </div>
 
